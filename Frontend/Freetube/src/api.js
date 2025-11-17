@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:3000/';
+const BASE_URL = 'https://freetube-dvts.onrender.com/';
 
 export async function fetchUsers(token) {
   const res = await fetch(`${BASE_URL}/users`, {
