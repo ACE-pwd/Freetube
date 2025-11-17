@@ -10,6 +10,6 @@
     "prisma": "^6.19.0"
   },
   "scripts": {
-    "npm start": "node Auth.js"
+    "start": "node Auth.js"
   }
 }
