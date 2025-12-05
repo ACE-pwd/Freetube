@@ -1,0 +1,102 @@
+.dashboard-container {
+    max-width: 56rem;
+    margin: 0 auto;
+}
+
+.welcome-card {
+    margin-bottom: 2rem;
+}
+
+.welcome-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.welcome-text {
+    color: #4b5563;
+}
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .dashboard-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+.dashboard-card {
+    display: block;
+    transition: all 0.2s;
+}
+
+.dashboard-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.icon-bg {
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.icon-bg-primary {
+    background-color: #e0e7ff;
+}
+
+.dashboard-card:hover .icon-bg-primary {
+    background-color: var(--primary-color);
+}
+
+.icon-bg-success {
+    background-color: #d1fae5;
+}
+
+.dashboard-card:hover .icon-bg-success {
+    background-color: #059669;
+}
+
+.icon-md {
+    height: 1.5rem;
+    width: 1.5rem;
+}
+
+.text-primary {
+    color: var(--primary-color);
+}
+
+.dashboard-card:hover .text-primary {
+    color: white;
+}
+
+.text-success {
+    color: #059669;
+}
+
+.dashboard-card:hover .text-success {
+    color: white;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+}
+
+.card-desc {
+    color: #4b5563;
+}
