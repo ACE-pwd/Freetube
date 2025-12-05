@@ -8,7 +8,8 @@
     "jsonwebtoken": "^9.0.2",
     "node": "^25.2.0",
     "nodemon": "^3.1.11",
-    "prisma": "^6.19.0"
+    "prisma": "^6.19.0",
+    "sqlite3": "^5.1.7"
   },
   "scripts": {
     "start": "node Auth.js"
