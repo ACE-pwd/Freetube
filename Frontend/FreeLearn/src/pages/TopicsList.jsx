@@ -1,3 +1,4 @@
+import { sessionToken } from '../session';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { topicsApi } from '../api';
@@ -12,6 +13,8 @@ export default function TopicsList() {
         totalItems: 0,
     });
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState('');
+    const [revision, setRevision] = useState(0);
 
     // Filters
     const [search, setSearch] = useState('');
@@ -19,33 +22,37 @@ export default function TopicsList() {
     const [sort, setSort] = useState('date_newest');
     const [page, setPage] = useState(1);
 
-    const token = localStorage.getItem('token');
+    const token = sessionToken();
 
     useEffect(() => {
-        fetchTopics();
-    }, [page, search, difficulty, sort]);
-
-    const fetchTopics = async () => {
-        setLoading(true);
-        try {
-            const params = { page, limit: 5, search, difficulty, sort };
-            const response = await topicsApi.get('/topics', { params });
-            setTopics(response.data.topics);
-            setPagination(response.data.pagination);
-        } catch (error) {
-            console.error('Error fetching topics:', error);
-        } finally {
-            setLoading(false);
+        const controller = new AbortController();
+        async function fetchTopics() {
+            setLoading(true);
+            setError('');
+            try {
+                const params = { page, limit: 5, search, difficulty, sort };
+                const response = await topicsApi.get('/topics', { params, signal: controller.signal });
+                if (controller.signal.aborted) return;
+                setTopics(response.data.topics);
+                setPagination(response.data.pagination);
+                setPage(response.data.pagination.currentPage);
+            } catch (error) {
+                if (!controller.signal.aborted) setError(error.response?.data?.message || 'Unable to load topics. Please try again.');
+            } finally {
+                if (!controller.signal.aborted) setLoading(false);
+            }
         }
-    };
+        fetchTopics();
+        return () => controller.abort();
+    }, [page, search, difficulty, sort, revision]);
 
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this topic?')) return;
         try {
             await topicsApi.delete(`/topics/${id}`);
-            fetchTopics();
+            setRevision(value => value + 1);
         } catch (error) {
-            alert('Failed to delete topic');
+            setError(error.response?.data?.message || 'Failed to delete topic');
         }
     };
 
@@ -126,11 +133,13 @@ export default function TopicsList() {
                 </div>
             </div>
 
+            {error && <div className="error-message" role="alert">{error} <button className="btn btn-outline" onClick={() => setRevision(value => value + 1)}>Retry</button></div>}
+
             {/* List */}
             <div className="topics-list">
                 {loading ? (
                     <div className="loading-state">Loading topics...</div>
-                ) : topics.length === 0 ? (
+                ) : error ? null : topics.length === 0 ? (
                     <div className="empty-state card">
                         <p>No topics found matching your criteria.</p>
                     </div>
@@ -141,22 +150,22 @@ export default function TopicsList() {
                                 <div className="topic-header-row">
                                     <h3 className="topic-title">{topic.title}</h3>
                                     <span className={`badge ${getDifficultyClass(topic.difficulty)}`}>
-                                        {topic.difficulty.charAt(0).toUpperCase() + topic.difficulty.slice(1)}
+                                        {topic.difficulty ? topic.difficulty.charAt(0).toUpperCase() + topic.difficulty.slice(1) : 'Not specified'}
                                     </span>
                                 </div>
                                 <p className="topic-description">{topic.description}</p>
                                 <div className="topic-date">
                                     <Calendar className="icon-sm" />
-                                    {new Date(topic.createdAt).toLocaleDateString()}
+                                    {new Date(topic.createdAt.includes('T') ? topic.createdAt : topic.createdAt.replace(' ', 'T') + 'Z').toLocaleDateString()}
                                 </div>
                             </div>
 
                             {token && (
                                 <div className="topic-actions">
-                                    <Link to={`/topics/${topic.id}/edit`} className="action-btn action-btn-edit">
+                                    <Link to={`/topics/${topic.id}/edit`} aria-label={`Edit ${topic.title}`} className="action-btn action-btn-edit">
                                         <Edit className="icon-sm" />
                                     </Link>
-                                    <button onClick={() => handleDelete(topic.id)} className="action-btn action-btn-delete">
+                                    <button onClick={() => handleDelete(topic.id)} aria-label={`Delete ${topic.title}`} className="action-btn action-btn-delete">
                                         <Trash2 className="icon-sm" />
                                     </button>
                                 </div>
@@ -171,6 +180,7 @@ export default function TopicsList() {
                 <div className="pagination">
                     <button
                         onClick={() => setPage(p => Math.max(1, p - 1))}
+                        aria-label="Previous page"
                         disabled={page === 1}
                         className="pagination-btn"
                     >
@@ -181,6 +191,7 @@ export default function TopicsList() {
                     </span>
                     <button
                         onClick={() => setPage(p => Math.min(pagination.totalPages, p + 1))}
+                        aria-label="Next page"
                         disabled={page === pagination.totalPages}
                         className="pagination-btn"
                     >

@@ -59,3 +59,8 @@
     height: 1rem;
     width: 1rem;
 }
+/* Keep the same navigation readable on narrow screens. */
+@media (max-width: 640px) {
+    .navbar-container { height: auto; min-height: 4rem; flex-wrap: wrap; gap: .75rem; padding-top: .75rem; padding-bottom: .75rem; }
+    .navbar-links { flex-wrap: wrap; gap: .75rem; }
+}

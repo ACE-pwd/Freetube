@@ -16,25 +16,35 @@ export default function TopicForm() {
     });
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [loadedId, setLoadedId] = useState(null);
 
     useEffect(() => {
-        if (isEditMode) {
-            fetchTopic();
+        const controller = new AbortController();
+        async function fetchTopic() {
+            setError('');
+            setLoadedId(null);
+            if (!id) {
+                setFormData({ title: '', description: '', difficulty: 'easy' });
+                return;
+            }
+            try {
+                const response = await topicsApi.get(`/topics/${id}`, { signal: controller.signal });
+                if (controller.signal.aborted) return;
+                const { title, description, difficulty } = response.data;
+                setFormData({ title, description: description || '', difficulty: difficulty || 'easy' });
+                setLoadedId(id);
+            } catch (error) {
+                if (!controller.signal.aborted) setError(error.response?.data?.message || 'Failed to fetch topic details');
+            }
         }
+        fetchTopic();
+        return () => controller.abort();
     }, [id]);
-
-    const fetchTopic = async () => {
-        try {
-            const response = await topicsApi.get(`/topics/${id}`);
-            const { title, description, difficulty } = response.data;
-            setFormData({ title, description, difficulty });
-        } catch (err) {
-            setError('Failed to fetch topic details');
-        }
-    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        if (loading || (isEditMode && loadedId !== id)) return;
+        if (!formData.title.trim()) { setError('Title is required'); return; }
         setLoading(true);
         setError('');
 
@@ -76,6 +86,7 @@ export default function TopicForm() {
                         <input
                             type="text"
                             required
+                            maxLength={200}
                             className="input-field"
                             value={formData.title}
                             onChange={(e) => setFormData({ ...formData, title: e.target.value })}
@@ -86,6 +97,7 @@ export default function TopicForm() {
                         <label className="input-label">Description</label>
                         <textarea
                             rows="4"
+                            maxLength={10000}
                             className="input-field textarea-field"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
@@ -108,7 +120,7 @@ export default function TopicForm() {
                     <div className="form-actions">
                         <button
                             type="submit"
-                            disabled={loading}
+                            disabled={loading || (isEditMode && loadedId !== id)}
                             className="btn btn-primary btn-submit"
                         >
                             <Save className="icon-sm" />
