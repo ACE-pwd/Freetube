@@ -1,13 +1,28 @@
+import { useEffect, useState } from 'react';
+import { authApi } from '../api';
 import { User, Mail, Shield } from 'lucide-react';
 import './Profile.css';
 
 export default function Profile() {
-    const email = localStorage.getItem('email');
+    const [email, setEmail] = useState(localStorage.getItem('email'));
+    const [error, setError] = useState('');
+    useEffect(() => {
+        const controller = new AbortController();
+        authApi.get('/me', { signal: controller.signal }).then(({ data }) => {
+            if (controller.signal.aborted) return;
+            setEmail(data.email);
+            localStorage.setItem('email', data.email);
+        }).catch(error => {
+            if (!controller.signal.aborted) setError(error.response?.data?.message || 'Unable to load profile. Please refresh to try again.');
+        });
+        return () => controller.abort();
+    }, []);
 
     return (
         <div className="profile-container">
             <h1 className="profile-title">My Profile</h1>
 
+            {error && <div className="error-message" role="alert">{error}</div>}
             <div className="profile-card card">
                 <div className="profile-header"></div>
                 <div className="profile-body">

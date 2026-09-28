@@ -1,23 +1,37 @@
 import axios from 'axios';
 
-const AUTH_URL = 'https://freetube-1.onrender.com';
-const TOPICS_URL = 'https://freetube-1.onrender.com/api';
+const AUTH_URL = import.meta.env.VITE_AUTH_URL || '';
+const TOPICS_URL = import.meta.env.VITE_TOPICS_URL || '/api';
 
 export const authApi = axios.create({
     baseURL: AUTH_URL,
+    timeout: 15000,
 });
 
 export const topicsApi = axios.create({
     baseURL: TOPICS_URL,
+    timeout: 15000,
 });
 
-topicsApi.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-});
+for (const api of [authApi, topicsApi]) {
+    api.interceptors.request.use((config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    });
+
+    api.interceptors.response.use(response => response, error => {
+        if (error.response?.status === 401 && localStorage.getItem('token') &&
+            !['/login', '/signup'].includes(error.config?.url)) {
+            localStorage.removeItem('token');
+            localStorage.removeItem('email');
+            window.location.assign('/login');
+        }
+        return Promise.reject(error);
+    });
+}
 
 // Auth functions matching Freetube's signature
 export async function loginUser(email, password) {

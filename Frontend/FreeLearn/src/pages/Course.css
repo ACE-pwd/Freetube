@@ -1,0 +1,14 @@
+/* New course features reuse the existing palette, cards, controls and spacing. */
+.course-layout { display: grid; grid-template-columns: minmax(220px, 1fr) minmax(0, 2.5fr); gap: 1.5rem; margin-top: 1.5rem; align-items: start; }
+.course-overview p, .course-content p { margin: 1rem 0; }
+.course-overview h3, .course-content h3 { margin-top: 1rem; }
+.course-overview progress { width: 100%; accent-color: var(--primary-color); }
+.course-video { width: 100%; aspect-ratio: 16 / 9; min-height: 200px; border: 0; margin-top: 1rem; }
+.course-lesson { display: flex; flex-direction: column; gap: .5rem; text-align: left; width: 100%; border: 1px solid var(--border-color); background: white; padding: 1rem; border-radius: .5rem; margin-top: .75rem; color: var(--text-color); cursor: pointer; font: inherit; }
+.course-lesson.selected { border-color: var(--primary-color); background: #eef2ff; }
+.course-lesson small { color: #6b7280; }
+.course-text { white-space: pre-wrap; overflow-wrap: anywhere; }
+.course-actions { display: flex; flex-wrap: wrap; gap: .75rem; margin: 1rem 0; }
+.course-editor-lesson, .course-fieldset { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+.course-fieldset { border: 0; padding: 0; margin: 0; }
+@media (max-width: 767px) { .course-layout { grid-template-columns: 1fr; } }

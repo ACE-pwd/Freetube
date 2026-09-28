@@ -1,24 +1,14 @@
-const jwt = require("jsonwebtoken")
+const jwt = require('jsonwebtoken');
 
-async function isValidToken(req, res, next) {
+function isValidToken(req, res, next) {
+    const match = /^Bearer (\S+)$/i.exec(req.headers.authorization || '');
+    if (!match) return res.status(401).json({ message: 'Access token required' });
     try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            return res.status(401).json({ message: "Token missing" });
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        const decoded = jwt.verify(token, process.env.SECRET_KEY);
-
-        // Attach user payload to req
-        req.user = decoded;
-
+        req.user = jwt.verify(match[1], process.env.SECRET_KEY, { algorithms: ['HS256'] });
+        if (!req.user.id) throw new Error('Missing user');
         next();
-    } catch (error) {
-        return res.status(401).json({ message: "Invalid or expired token" });
+    } catch {
+        return res.status(401).json({ message: 'Invalid or expired token' });
     }
 }
-
-module.exports = { isValidToken }
+module.exports = { isValidToken };

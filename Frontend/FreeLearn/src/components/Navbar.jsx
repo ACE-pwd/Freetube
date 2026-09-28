@@ -1,9 +1,10 @@
+import { sessionToken } from '../session';
 import { Link } from 'react-router-dom';
 import { BookOpen, LogOut, User, LayoutDashboard } from 'lucide-react';
 import './Navbar.css';
 
 export default function Navbar() {
-    const token = localStorage.getItem('token');
+    const token = sessionToken();
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -20,8 +21,8 @@ export default function Navbar() {
                 </Link>
 
                 <div className="navbar-links">
-                    <Link to="/topics" className="nav-link">
-                        Topics
+                    <Link to="/courses" className="nav-link">
+                        Courses
                     </Link>
 
                     {token ? (

@@ -1,17 +1,21 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { sessionToken } from './session';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
-import TopicsList from './pages/TopicsList';
-import TopicForm from './pages/TopicForm';
+import Courses from './pages/Courses';
+import Course from './pages/Course';
+import CourseForm from './pages/CourseForm';
+
 import Profile from './pages/Profile';
 import Navbar from './components/Navbar';
 import './App.css';
 
 function PrivateRoute({ children }) {
-  const token = localStorage.getItem('token');
-  return token ? children : <Navigate to="/login" />;
+  const token = sessionToken();
+  const location = useLocation();
+  return token ? children : <Navigate to={`/login?next=${encodeURIComponent(location.pathname)}`} replace />;
 }
 
 function App() {
@@ -34,24 +38,17 @@ function App() {
             />
             <Route
               path="/topics"
-              element={<TopicsList />}
+              element={<Navigate to="/courses" replace />}
             />
             <Route
               path="/topics/new"
               element={
                 <PrivateRoute>
-                  <TopicForm />
+                  <CourseForm />
                 </PrivateRoute>
               }
             />
-            <Route
-              path="/topics/:id/edit"
-              element={
-                <PrivateRoute>
-                  <TopicForm />
-                </PrivateRoute>
-              }
-            />
+            <Route path="/topics/:id/edit" element={<Navigate to="/courses" replace />} />
             <Route
               path="/profile"
               element={
@@ -60,6 +57,11 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/courses" element={<Courses />} />
+            <Route path="/courses/new" element={<PrivateRoute><CourseForm /></PrivateRoute>} />
+            <Route path="/courses/:id/edit" element={<PrivateRoute><CourseForm /></PrivateRoute>} />
+            <Route path="/courses/:id" element={<PrivateRoute><Course /></PrivateRoute>} />
           </Routes>
         </main>
         <footer className="footer">

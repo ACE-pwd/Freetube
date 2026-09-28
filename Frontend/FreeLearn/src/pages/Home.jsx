@@ -15,12 +15,12 @@ export default function Home() {
                 </h1>
 
                 <p className="hero-subtitle">
-                    A structured, free learning platform designed to help you track your progress and master complex topics with ease.
+                    Discover creative skills through free, structured courses. Follow lessons at your level, practise at your pace, and make something of your own.
                 </p>
 
                 <div className="hero-buttons">
-                    <Link to="/topics" className="btn btn-primary btn-lg">
-                        <span>Explore Topics</span>
+                    <Link to="/courses" className="btn btn-primary btn-lg">
+                        <span>Explore Courses</span>
                         <ArrowRight className="icon-sm ml-2" />
                     </Link>
                     <Link to="/login" className="btn btn-outline btn-lg">
@@ -31,9 +31,9 @@ export default function Home() {
 
             <div className="features-grid">
                 {[
-                    { title: 'Structured Learning', desc: 'Organized topics to guide your learning journey step by step.' },
+                    { title: 'Structured Learning', desc: 'Ready-made courses in creative skills, arranged step by step.' },
                     { title: 'Track Progress', desc: 'Keep track of what you have learned and what comes next.' },
-                    { title: 'Community Driven', desc: 'Open platform for sharing knowledge and resources.' },
+                    { title: 'Create Something', desc: 'Turn each lesson into practice, from your first strokes to your first melody.' },
                 ].map((item, index) => (
                     <div key={index} className="feature-card">
                         <CheckCircle className="feature-icon" />
